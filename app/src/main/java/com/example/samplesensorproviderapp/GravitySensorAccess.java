@@ -5,30 +5,29 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.widget.EditText;
-import com.hivemq.client.mqtt.MqttClient;
-import com.hivemq.client.mqtt.MqttGlobalPublishFilter;
+
 import com.hivemq.client.mqtt.datatypes.MqttQos;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5BlockingClient;
 import com.hivemq.client.mqtt.mqtt5.Mqtt5Client;
 
 import java.util.UUID;
 
-public class LightSensorAccess implements SensorEventListener {
+public class GravitySensorAccess implements SensorEventListener {
     private SensorManager sensorManager;
-    private Sensor mLight;
+    private Sensor mGravity;
     private EditText sensor_field;
     private Mqtt5BlockingClient client;
-    public static final String LUMINOSITY_IN_TOPIC = "luminosity_in";
-    public static final String LUMINOSITY_OUT_TOPIC = "luminosity_out";
+    public static final String GRAVITY_IN_TOPIC = "gravity_in";
+    public static final String GRAVITY_OUT_TOPIC = "gravity_out";
 
     private long lastUpdate = 0;
     private static final long UPDATE_INTERVAL = 3000; // 3 seconds
 
-    public LightSensorAccess(SensorManager sm, EditText et){
+    public GravitySensorAccess(SensorManager sm, EditText et){
         sensorManager = sm;
         sensor_field = et;
-        mLight = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-        sensorManager.registerListener(this, mLight, SensorManager.SENSOR_DELAY_NORMAL);
+        mGravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        sensorManager.registerListener(this, mGravity, SensorManager.SENSOR_DELAY_NORMAL);
 
         client = Mqtt5Client.builder()
                 .identifier(UUID.randomUUID().toString())
@@ -48,13 +47,13 @@ public class LightSensorAccess implements SensorEventListener {
         if ((currentTime - lastUpdate) > UPDATE_INTERVAL) {
             lastUpdate = currentTime;
 
-            float lux = event.values[0];
-            sensor_field.setText(String.valueOf(lux));
+            float temp = event.values[1];
+            sensor_field.setText(String.valueOf(temp));
 
             client.publishWith()
-                    .topic(LUMINOSITY_IN_TOPIC)
+                    .topic(GRAVITY_IN_TOPIC)
                     .qos(MqttQos.AT_LEAST_ONCE)
-                    .payload(String.valueOf(lux).getBytes())
+                    .payload(String.valueOf(temp).getBytes())
                     .send();
         }
     }

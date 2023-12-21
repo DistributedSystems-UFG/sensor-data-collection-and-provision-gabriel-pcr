@@ -15,12 +15,6 @@
         android:theme="@style/Theme.SampleSensorProviderApp"
         tools:targetApi="31">
         <activity
-            android:name=".AccessSensorsActivity"
-            android:exported="false" />
-        <activity
-            android:name=".DisplayMessageActivity"
-            android:exported="false" />
-        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
